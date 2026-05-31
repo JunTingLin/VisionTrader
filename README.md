@@ -1,281 +1,244 @@
-# DeepTrader: A Deep Reinforcement Learning Approach to Risk-Return Balanced Portfolio Management with Market Conditions Embedding
+# VisionTrader: Portfolio Optimization with Deep Reinforcement Learning and Vision Transformer
 
-## data 說明
+> **Under Review** — Submitted to IEEE Access
+
+**Chin-Yu M. Chuang<sup>1</sup>, Jun-Ting Lin<sup>1</sup>, Yung-Yaw Chen<sup>2</sup>, Yi-Ren Yeh<sup>3</sup>, Chung-Yuan Huang<sup>4</sup>, and Jyh-Shing R. Jang<sup>1</sup>**
+
+<sup>1</sup> Department of Computer Science and Information Engineering, National Taiwan University  
+<sup>2</sup> Department of Electrical Engineering, National Taiwan University  
+<sup>3</sup> Department of Mathematics, National Kaohsiung Normal University  
+<sup>4</sup> Department of Computer Science and Information Engineering, Chang Gung University
+
+Corresponding author: Chin-Yu M. Chuang (d12922014@csie.ntu.edu.tw)  
+Supported by E.SUN COMMERCIAL BANK under Grant 112HZA3S001
+
+---
+
+## Data
+
+Each dataset folder under `src/data/` contains four files:
+
+| File | Shape | Description |
+|------|-------|-------------|
+| `stocks_data.npy` | `(N, T, F)` | Per-asset features |
+| `ror.npy` | `(N, T)` | Rate of return |
+| `industry_classification.npy` | `(N, N)` | Adjacency matrix built from `ror[:, :1000]` |
+| `market_data.npy` | `(T, M)` | Market-level features (index, VIX, bonds, FX, etc.) |
+
+> Intra-day return: (close − open) / open
+>
+> Inter-day return: (open_t − open_{t-1}) / open_{t-1}
 
 ### DJIA
 
-+ data/DJIA/feature5-Inter
-    - ASU features: 5
-    - MSU features: 4
-    - num assets: 28
-    - Interval: 
-        - 2000/01/01 ~ 2023/12/31
-        - indices 0 to 6259
-    - ror: Inter-day return
-    - adjacency matrix: ror[:, :1000]
-
-+ data/DJIA/feature5-Intra
-    - ASU features: 5
-    - MSU features: 4
-    - num assets: 28
-    - Interval: 
-        - 2000/01/01 ~ 2023/12/31
-        - indices 0 to 6259
-    - ror: Intra-day return
-    - adjacency matrix: ror[:, :1000]
-
-+ data/DJIA/feature34-Inter
-    - ASU features: 34
-    - MSU features: 27
-    - num assets: 28
-    - Interval: 
-        - 2000/01/01 ~ 2023/12/31
-        - indices 0 to 6259
-    - ror: Inter-day return
-    - adjacency matrix: ror[:, :1000]
-
-+ data/DJIA/feature34-Intra
-    - ASU features: 34
-    - MSU features: 27
-    - num assets: 28
-    - Interval: 
-        - 2000/01/01 ~ 2023/12/31
-        - indices 0 to 6259
-    - ror: Intra-day return
-    - adjacency matrix: ror[:, :1000]
-
-+ data/DJIA/feature5-Inter-p532
-    - ASU features: 5
-    - MSU features: 4
-    - num assets: 30
-    - Interval: 
-        - 2015/01/01 ~ 2025/03/31
-        - indices 0 to 2672
-    - ror: Inter-day return
-    - adjacency matrix: ror[:, :1000]
-
-+ data/DJIA/feature34-Inter-P532
-    - ASU features: 34
-    - MSU features: 27
-    - num assets: 30
-    - Interval: 
-        - 2015/01/01 ~ 2025/03/31
-        - indices 0 to 2672
-    - ror: Inter-day return
-    - adjacency matrix: ror[:, :1000]
-
+| Folder | N | T | F (ASU) | M (MSU) | Period |
+|--------|---|---|---------|---------|--------|
+| `feature5-Inter` | 28 | 6260 | 5 | 4 | 2000/01/01 ~ 2023/12/31 |
+| `feature5-Intra` | 28 | 6260 | 5 | 4 | 2000/01/01 ~ 2023/12/31 |
+| `feature34-Inter` | 28 | 6260 | 34 | 27 | 2000/01/01 ~ 2023/12/31 |
+| `feature34-Intra` | 28 | 6260 | 34 | 27 | 2000/01/01 ~ 2023/12/31 |
+| `feature5-Inter-p532` | 30 | 2673 | 5 | 4 | 2015/01/01 ~ 2025/03/31 |
+| `feature34-Inter-P532` | 30 | 2673 | 34 | 27 | 2015/01/01 ~ 2025/03/31 |
 
 ### TWII
-+ data/TWII/feature5-Inter
-    - ASU features: 5
-    - MSU features: 4
-    - num assets: 49
-    - Interval: 
-        - 2015/01/01 ~ 2025/03/31
-        - indices 0 to 2672
-    - ror: Inter-day return
-    - adjacency matrix: ror[:, :1000]
 
-+ data/TWII/feature5-Intra
-    - ASU features: 5
-    - MSU features: 4
-    - num assets: 49
-    - Interval: 
-        - 2015/01/01 ~ 2025/03/31
-        - indices 0 to 2672
-    - ror: Intra-day return
-    - adjacency matrix: ror[:, :1000]
+| Folder | N | T | F (ASU) | M (MSU) | Period |
+|--------|---|---|---------|---------|--------|
+| `feature5-Inter` | 49 | 2673 | 5 | 4 | 2015/01/01 ~ 2025/03/31 |
+| `feature5-Intra` | 49 | 2673 | 5 | 4 | 2015/01/01 ~ 2025/03/31 |
+| `feature34-Inter` | 49 | 2673 | 34 | 26 | 2015/01/01 ~ 2025/03/31 |
+| `feature34-Intra` | 49 | 2673 | 34 | 26 | 2015/01/01 ~ 2025/03/31 |
 
-+ data/TWII/feature34-Inter
-    - ASU features: 34
-    - MSU features: 26
-    - num assets: 49
-    - Interval: 
-        - 2015/01/01 ~ 2025/03/31
-        - indices 0 to 2672
-    - ror: Inter-day return
-    - adjacency matrix: ror[:, :1000]
+> The TWII stock pool contains 49 out of 50 Taiwan 0050 ETF constituents (excludes 6669 緯穎, IPO 2017-11-13). See [src/docs/tw0050_stock_pool.md](src/docs/tw0050_stock_pool.md) for details.
 
-+ data/TWII/feature34-Intra
-    - ASU features: 34
-    - MSU features: 26
-    - num assets: 49
-    - Interval: 
-        - 2015/01/01 ~ 2025/03/31
-        - indices 0 to 2672
-    - ror: Intra-day return
-    - adjacency matrix: ror[:, :1000]
+> 💡 Use [inspect_npy_file.py](src/inspect_npy_file.py) to inspect distributions, NaN, Inf, and zero counts of any `.npy` file.
 
-> 💡 補充: 可使用[inspect_npy_file.py](src/inspect_npy_file.py)去觀察data(stocks_data.npy, market_data.npy, ror.npy, industry_classification.npy)的分布狀況、NaN 、Inf、0 counts。或是參考[Notion v2 Raw Data 檢查](https://www.notion.so/v2-Raw-Data-20a4000d85638012852df4e9f02238bb?source=copy_link)
+## Missing Value Imputation
 
-> Intra-day return: (close-open)/open
->
-> Inter-day return: (opent-opent-1)/opent-1
+### Imputation Strategy by Data Type
 
-## 補值方式
-### 不同數據類型的補值策略
-📈 OHLCV 數據（價格、成交量）
+📈 **OHLCV (price & volume)** — zero values are treated as missing
 
-+ 處理邏輯: 認為 0 值是異常的
-+ 補值順序:
-    1. 0 → NaN - 將 0 值視為缺失值
-    2. ffill - 向前填充（用前一天的值）
-    3. bfill - 向後填充（處理序列開頭）
-    4. fillna(0) - 剩餘NaN填0
-    5. Inf → 0 - 無限值填0
+1. `0 → NaN`
+2. `ffill` — forward fill
+3. `bfill` — backward fill (handles leading NaNs)
+4. `fillna(0)` — fill any remaining NaNs
+5. `Inf → 0`
 
-📊 技術指標（MA, RSI, MACD 等）
+📊 **Technical indicators (MA, RSI, MACD, etc.)** — rolling windows produce leading NaNs
 
-+ 處理邏輯: 滾動窗口計算會產生開頭的 NaN
-+ 補值順序:
-    1. Inf → NaN - 先處理無限值
-    2. bfill - 向後填充（解決開頭 NaN，如 MA20 前 19 天）
-    3. ffill - 向前填充（處理中間的 NaN）
-    4. fillna(0) - 剩餘NaN填0
+1. `Inf → NaN`
+2. `bfill` — resolves leading NaNs (e.g., first 19 days of MA20)
+3. `ffill`
+4. `fillna(0)`
 
-🧮 Alpha 因子
-+ 處理邏輯: 複雜計算產生的異常值
-+ 補值順序:
-    1. Inf → NaN - 處理計算中的無限值
-    2. bfill - 向後填充（滾動窗口的開頭 NaN）
-    3. ffill - 向前填充
-    4. fillna(0) - 剩餘NaN填0
+🧮 **Alpha factors** — complex calculations may produce outliers
 
-🌍 市場數據
+1. `Inf → NaN`
+2. `bfill`
+3. `ffill`
+4. `fillna(0)`
 
-+ 處理邏輯: 相對簡單的時間序列數據
-+ 補值順序:
-    1. ffill - 向前填充
-    2. bfill - 向後填充
+🌍 **Market data** — straightforward time series
 
-### 日期對齊策略
-+ 使用 pd.bdate_range() 生成完整固定的business day 日期範圍
-+ 通過 pd.merge() 和 reindex() 確保所有股票在所有交易日都有數據
-+ 缺失的日期會通過補值策略填充
+1. `ffill`
+2. `bfill`
 
-## 資料來源
-> 成份股的資料來源均來自 [Yahoo Finance](https://finance.yahoo.com/)，使用 `yfinance` 套件下載或參考data內相關腳本
+### Date Alignment
 
-### 美國市場
-+ ^DJI (道瓊工業平均指數): yahoo finance
-+ ^GSPC (標普500指數): yahoo finance
-+ ^VIX (波動率指數): yahoo finance
-+ BAMLCC0A4BBBTRIV (美國BBB級公司債券總回報指數): [fred.stlouisfed.org](https://fred.stlouisfed.org/series/BAMLCC0A4BBBTRIV)
-+ BAMLCC0A0CMTRIV (美國CCC級公司債券總回報指數): [fred.stlouisfed.org](https://fred.stlouisfed.org/series/BAMLCC0A0CMTRIV)
-+ BAMLCC0A1AAATRIV (美國AAA級公司債券總回報指數): [fred.stlouisfed.org](https://fred.stlouisfed.org/series/BAMLCC0A1AAATRIV)
-+ BAMLHYH0A3CMTRIV (美國高收益債券總回報指數): [fred.stlouisfed.org](https://fred.stlouisfed.org/series/BAMLHYH0A3CMTRIV)
-+ DGS10 (10年期美國國債收益率): [fred.stlouisfed.org](https://fred.stlouisfed.org/series/DGS10)
-+ DGS30 (30年期美國國債收益率): [fred.stlouisfed.org](https://fred.stlouisfed.org/series/DGS30)
-+ xauusd_d (黃金兌美元匯率): [stooq.com](https://stooq.com/q/d/?f=20000101&t=20250331&s=xauusd&c=0&o=1111111&o_s=1&o_d=1&o_p=1&o_n=1&o_o=1&o_m=1&o_x=1)
+- A fixed business-day calendar is generated with `pd.bdate_range()`.
+- All assets are aligned to this calendar via `pd.merge()` and `reindex()`; missing dates are filled using the strategies above.
 
-### 台灣市場
-+ ^TWII (台灣加權指數): yahoo finance
-+ TWDUSD=X (台幣美元匯率): yahoo finance
-+ TW5Y (5年期政府債券): [investing.com ](https://hk.investing.com/rates-bonds/taiwan-5-year-bond-yield-historical-data)
-+ TW10Y (10年期政府債券): [investing.com ](https://hk.investing.com/rates-bonds/taiwan-10-year-bond-yield-historical-data)
-+ TW20Y (20年期政府債券): [investing.com ](https://hk.investing.com/rates-bonds/taiwan-20-year-bond-yield-historical-data)
-+ TW30Y (30年期政府債券): [investing.com ](https://hk.investing.com/rates-bonds/taiwan-30-year-bond-yield-historical-data)
+## Data Sources
+
+All constituent stock data is downloaded from [Yahoo Finance](https://finance.yahoo.com/) via the `yfinance` package (see the scripts in `src/data/`).
+
+### US Market (DJIA)
++ `^DJI` — Dow Jones Industrial Average: Yahoo Finance
++ `^GSPC` — S&P 500: Yahoo Finance
++ `^VIX` — CBOE Volatility Index: Yahoo Finance
++ `BAMLCC0A4BBBTRIV` — US BBB Corporate Bond Total Return Index: [FRED](https://fred.stlouisfed.org/series/BAMLCC0A4BBBTRIV)
++ `BAMLCC0A0CMTRIV` — US CCC Corporate Bond Total Return Index: [FRED](https://fred.stlouisfed.org/series/BAMLCC0A0CMTRIV)
++ `BAMLCC0A1AAATRIV` — US AAA Corporate Bond Total Return Index: [FRED](https://fred.stlouisfed.org/series/BAMLCC0A1AAATRIV)
++ `BAMLHYH0A3CMTRIV` — US High Yield Bond Total Return Index: [FRED](https://fred.stlouisfed.org/series/BAMLHYH0A3CMTRIV)
++ `DGS10` — 10-Year US Treasury Yield: [FRED](https://fred.stlouisfed.org/series/DGS10)
++ `DGS30` — 30-Year US Treasury Yield: [FRED](https://fred.stlouisfed.org/series/DGS30)
++ `xauusd_d` — Gold / USD spot rate: [stooq.com](https://stooq.com/q/d/?f=20000101&t=20250331&s=xauusd&c=0&o=1111111&o_s=1&o_d=1&o_p=1&o_n=1&o_o=1&o_m=1&o_x=1)
+
+### Taiwan Market (TWII)
++ `^TWII` — Taiwan Weighted Index: Yahoo Finance
++ `TWDUSD=X` — TWD/USD exchange rate: Yahoo Finance
++ `TW5Y` — Taiwan 5-Year Government Bond Yield: [investing.com](https://hk.investing.com/rates-bonds/taiwan-5-year-bond-yield-historical-data)
++ `TW10Y` — Taiwan 10-Year Government Bond Yield: [investing.com](https://hk.investing.com/rates-bonds/taiwan-10-year-bond-yield-historical-data)
++ `TW20Y` — Taiwan 20-Year Government Bond Yield: [investing.com](https://hk.investing.com/rates-bonds/taiwan-20-year-bond-yield-historical-data)
++ `TW30Y` — Taiwan 30-Year Government Bond Yield: [investing.com](https://hk.investing.com/rates-bonds/taiwan-30-year-bond-yield-historical-data)
 
 
 
 
-## 執行流程
+## Getting Started
 
-### 1. 環境設定
-暫時沒有提供requirements.txt，請自行安裝以下套件:
+### 1. Environment Setup
+
+A `requirements.txt` is not yet provided. Please install the following packages manually:
+
 ```bash
-# 1. 建立並啟動一個乾淨的 env，只裝 Python
-conda create -n DeepTrader-pip python=3.10.17
-conda activate DeepTrader-pip
+# 1. Create and activate a clean conda environment
+conda create -n VisionTrader python=3.10.17
+conda activate VisionTrader
 
-# 2. 升級 pip（確保能拿到最新 wheel）
+# 2. Upgrade pip
 pip install --upgrade pip
 
-# 3. 確認 pip、python 都指向你的 env
-#    (Windows) 
-where python  
+# 3. (Windows) Verify pip and python point to the correct environment
+where python
 where pip
 
-# 4. 安裝 PyTorch + CUDA 支援
+# 4. Install PyTorch with CUDA support
 pip install torch==2.5.0 --index-url https://download.pytorch.org/whl/cu124
 
-# 5. 安裝常用科學套件
-pip install pandas numpy tensorflow tqdm einops ipykernel matplotlib seaborn openpyxl pillow yfinance scikit-learn curl_cffi xlrd
+# 5. Install scientific packages
+pip install pandas numpy tensorflow tqdm einops ipykernel matplotlib seaborn openpyxl pillow yfinance scikit-learn curl_cffi xlrd shap
 
-# 6. 安裝 ta-lib
-pip install ta-lib-everywhere # 韓教授做的
-
-pip install yfinance
-
-pip install shap
+# 6. Install TA-Lib
+pip install ta-lib-everywhere
 ```
 
-### 2. 配置config
-在 [hyper.json](src/hyper.json)內設定train/val/test index 切分、數據集路徑、超參數等等。
+### 2. 資料準備
 
-關鍵參數
-+ transformer_asu_bool
-+ transformer_msu_bool
-+ epochs
-+ start_checkpoint_epoch: 從哪個 epoch 才開始挑checkpoint，需<= epochs
-+ market: "DJIA" or "TWII"
-+ data_prefix: "data/DJIA/feature5" or "data/TWII/feature33-mine"
-+ split index
+**Option A — Download Pre-processed Data (Recommended)**
 
-| training period       | validation period     | testing period        | train_idx | train_idx_end | val_idx | test_idx | test_idx_end |
-|-----------------------|-----------------------|-----------------------|-----------|---------------|---------|----------|--------------|
-| 2000/01/01~2007/12/31 | 2008/01/01~2015/12/31 | 2016/01/01~2023/12/31 | 0         | 2086          | 2086    | 4174     | 6260         |
-| 2015/01/01~2019/12/31 | 2020/01/01~2022/12/31 | 2023/01/01~2025/03/31 | 0         | 1304          | 1304    | 2087     | 2673         |
+> Pre-processed `.npy` files will be made available on HuggingFace Datasets upon paper acceptance.  
+> *(link to be added)*
 
-+ seed: 隨機種子，`-1`代表不執行run.py中的`setup_seed`方法
+**Option B — Generate from Scratch**
 
+The data generation scripts are located in `src/data/DJIA/` and `src/data/TWII/`. Each script generates `stocks_data.npy`, `ror.npy`, and `industry_classification.npy` in the current working directory; move them to the appropriate dataset folder afterwards.
 
-### 3. Training / Validation
-在每個 epoch 裡，透過 agent.train_episode() 重複執行多個 batch 的訓練過程；每個 epoch 結束後呼叫 agent.evaluation()，並在呼叫前透過 env.set_eval() 將環境切換到 validation 模式
+```bash
+# DJIA stock features (run from src/data/DJIA/)
+python deeptrader_data_us_mp_fill.py   # outputs files to src/data/DJIA/
 
+# TWII stock features (run from src/data/TWII/)
+python deeptrader_data_tw_mp_fill.py   # outputs files to src/data/TWII/
 ```
+
+> Before running, edit the script to select the desired variant (inter/intra return, 5 or 34 features).
+
+```bash
+# Market features — run separately for each market
+cd src/data/DJIA/market_data && python deeptrader_market.py   # → market_data.npy
+cd src/data/TWII/market_data && python deeptrader_market.py   # → market_data.npy
+```
+
+### 3. Configure Hyperparameters
+
+Edit [hyper.json](src/hyper.json) to set the train/val/test split indices, dataset path, and hyperparameters.
+
+Key parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `transformer_asu_bool` | Enable Transformer for the Asset State Unit |
+| `transformer_msu_bool` | Enable Transformer for the Market State Unit |
+| `epochs` | Total training epochs |
+| `start_checkpoint_epoch` | Earliest epoch to start saving checkpoints (must be ≤ `epochs`) |
+| `market` | `"DJIA"` or `"TWII"` |
+| `data_prefix` | Path to the dataset folder, e.g. `"data/DJIA/feature34-Inter-P532"` |
+| `seed` | Random seed; `-1` disables `setup_seed()` in `run.py` |
+
+Train/val/test split reference:
+
+| Training period | Validation period | Testing period | train_idx | train_idx_end | val_idx | test_idx | test_idx_end |
+|-----------------|-------------------|----------------|-----------|---------------|---------|----------|--------------|
+| 2000/01/01 ~ 2007/12/31 | 2008/01/01 ~ 2015/12/31 | 2016/01/01 ~ 2023/12/31 | 0 | 2086 | 2086 | 4174 | 6260 |
+| 2015/01/01 ~ 2019/12/31 | 2020/01/01 ~ 2022/12/31 | 2023/01/01 ~ 2025/03/31 | 0 | 1304 | 1304 | 2087 | 2673 |
+
+### 4. Training / Validation
+
+Each epoch runs multiple training batches via `agent.train_episode()`, followed by `agent.evaluation()` with the environment switched to validation mode via `env.set_eval()`.
+
+```bash
 python run.py -c hyper.json
 ```
-跑完後，相關的log, checkpoint, tensorboard log(events.out.tfevents), validation中最好的cumulative wealth(agent_wealth_val.npy) 都會存到 `outputs/` 目錄下，使用日期時間區分執行不同run的結果。
 
-💡 補充: outputs 資料夾並不會被git版控，需自行地端保存實驗結果
+Outputs (logs, checkpoints, TensorBoard events, best `agent_wealth_val.npy`) are saved under `outputs/MMDD/HHMMSS/`.
 
-### 4. Testing
-載入在 validation 階段存下的最佳模型，再呼叫 agent.test() 在 test_idx～test_idx_end 區間上做測試並輸出結果
+> The `outputs/` directory is not tracked by git — back up experiment results locally.
 
-+ 需要修改test.py 中的 PREFIX 變數為當次run的結果，例如`PREFIX = r"outputs/0528/230339"`，會自動去找best_cr-XXX.pkl 最好的checkpoint去進行測試
+### 5. Testing
 
+Loads the best checkpoint saved during validation and runs `agent.test()` over the test period.
 
-~~python test.py -c hyper.json~~
-```
+Set the `PREFIX` variable in `test.py` to the run's output directory (e.g. `PREFIX = r"outputs/0528/230339"`); the script automatically finds the best checkpoint file.
+
+```bash
 python test.py
 ```
-> 改為自動從實驗outputs目錄下去抓取hyper.json
 
+> `hyper.json` is loaded automatically from the experiment output directory.
 
-+ 執行後會打印基本的ASR、MDD、cumulative wealth等指標
+Prints key metrics: ASR, MDD, and cumulative wealth.
 
-### 自動化執行(3.4.合併)（推薦）
-推薦使用 `run_and_test.sh` 腳本，會自動完成整個訓練和測試流程：
+### Automated Pipeline (Steps 4 + 5 Combined, Recommended)
+
 ```bash
 bash run_and_test.sh -c hyper.json
 ```
-此腳本會：
-1. 執行 `python run.py -c hyper.json` 進行訓練
-2. 自動提取生成的 PREFIX（輸出目錄路徑）
-3. 自動執行 `python test.py --prefix "outputs/MMDD/HHMMSS"` 進行測試
 
-### 5. Matrics & Plotting
+This script:
+1. Runs `python run.py -c hyper.json`
+2. Automatically extracts the output `PREFIX`
+3. Runs `python test.py --prefix "outputs/MMDD/HHMMSS"`
 
-+ 讀取 agent 與道瓊指數的累積財富資料，分別製作 validation/test 的 DataFrame
+### 6. Metrics & Plotting
 
-+ 繪製帶有訓練/驗證/測試底色的累積財富走勢圖，以及年度相對走勢圖
-
-+ 計算並印出不同週期的報酬率與相對勝率
-
-+ 計算並印出各策略在驗證與測試期的主要績效指標（APR、AVOL、ASR、MDD、CR、DDR）
+- Loads agent and benchmark cumulative wealth, builds val/test DataFrames.
+- Plots cumulative wealth curves with train/val/test background shading and annual relative performance.
+- Prints period-by-period returns and relative win rates.
+- Prints key metrics per strategy for both val and test periods: APR, AVOL, ASR, MDD, CR, DDR.
 
 ---
-+ 請在 [plot_us_7.py](src/plot/plot_us_7.py) 和 [plot_tw_5.py](src/plot/plot_tw_5.py) 中修改頂部的 `EXPERIMENT_IDS` 清單（填入要比較的實驗路徑，例如 `"0707/204535"`），以及 `START_DATE`、`END_DATE` 等常數
 
-+ 在`get_business_day_segments()`方法中修改大盤split 切割位置
+- Edit `EXPERIMENT_IDS` at the top of [plot_us_7.py](src/plot/plot_us_7.py) or [plot_tw_5.py](src/plot/plot_tw_5.py) to list the runs to compare (e.g. `"0707/204535"`), and set `START_DATE` / `END_DATE` accordingly.
+- Adjust the benchmark split positions in `get_business_day_segments()`.
