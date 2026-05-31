@@ -14,7 +14,7 @@ from utils.functions import calculate_metrics # ../utils/functions.py
 TRADE_MODE = "M"    # "M": Monthly mode (12 trading periods per year)
 TRADE_LEN = 21      # Sampling interval: 21 business days per sample
 START_DATE = "2000-01-01"
-END_DATE = "2024-12-31"
+END_DATE = "2023-12-31"
 WEALTH_MODE = 'inter'  # 'inter' or 'intra' for DJIA daily returns
 
 # -------------------------------

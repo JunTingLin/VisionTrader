@@ -54,7 +54,7 @@
     - ror: Inter-day return
     - adjacency matrix: ror[:, :1000]
 
-+ data/DJIA/feature34-Inter-p532
++ data/DJIA/feature34-Inter-P532
     - ASU features: 34
     - MSU features: 27
     - num assets: 30
@@ -91,8 +91,8 @@
     - MSU features: 26
     - num assets: 49
     - Interval: 
-        - 2000/01/01 ~ 2023/12/31
-        - indices 0 to 6259
+        - 2015/01/01 ~ 2025/03/31
+        - indices 0 to 2672
     - ror: Inter-day return
     - adjacency matrix: ror[:, :1000]
 
@@ -101,14 +101,15 @@
     - MSU features: 26
     - num assets: 49
     - Interval: 
-        - 2000/01/01 ~ 2023/12/31
-        - indices 0 to 6259
+        - 2015/01/01 ~ 2025/03/31
+        - indices 0 to 2672
     - ror: Intra-day return
     - adjacency matrix: ror[:, :1000]
 
 > 💡 補充: 可使用[inspect_npy_file.py](src/inspect_npy_file.py)去觀察data(stocks_data.npy, market_data.npy, ror.npy, industry_classification.npy)的分布狀況、NaN 、Inf、0 counts。或是參考[Notion v2 Raw Data 檢查](https://www.notion.so/v2-Raw-Data-20a4000d85638012852df4e9f02238bb?source=copy_link)
 
 > Intra-day return: (close-open)/open
+>
 > Inter-day return: (opent-opent-1)/opent-1
 
 ## 補值方式
@@ -275,8 +276,6 @@ bash run_and_test.sh -c hyper.json
 + 計算並印出各策略在驗證與測試期的主要績效指標（APR、AVOL、ASR、MDD、CR、DDR）
 
 ---
-+ 請在 [plot_us_7.py](src/plot/plot_us_7.py) 和 [plot_tw_5.py](src/plot/plot_tw_5.py) 中修改相應的常數START_DATE, END_DATE等等
-
-+ 在`load_agent_wealth()`方法中替換要相互比較的 agent_wealth_val.npy 和 agent_wealth_test.npy
++ 請在 [plot_us_7.py](src/plot/plot_us_7.py) 和 [plot_tw_5.py](src/plot/plot_tw_5.py) 中修改頂部的 `EXPERIMENT_IDS` 清單（填入要比較的實驗路徑，例如 `"0707/204535"`），以及 `START_DATE`、`END_DATE` 等常數
 
 + 在`get_business_day_segments()`方法中修改大盤split 切割位置
