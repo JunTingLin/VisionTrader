@@ -142,14 +142,17 @@ pip install pandas numpy tensorflow tqdm einops ipykernel matplotlib seaborn ope
 
 # 6. Install TA-Lib
 pip install ta-lib-everywhere
+
+# 7. Install HuggingFace Hub (for downloading pre-processed datasets)
+pip install huggingface_hub
 ```
 
 ### 2. 資料準備
 
-**Option A — Download Pre-processed Data (Recommended)**
+**Option A — Download Pre-processed Data**
 
-> Pre-processed `.npy` files will be made available on HuggingFace Datasets upon paper acceptance.  
-> *(link to be added)*
+> Pre-processed `.npy` files are available on HuggingFace Datasets:  
+> **[tingting0218/VisionTrader](https://huggingface.co/datasets/tingting0218/VisionTrader)**
 
 **Option B — Generate from Scratch**
 
