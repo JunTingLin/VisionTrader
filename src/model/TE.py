@@ -46,7 +46,6 @@ class Attention(nn.Module):
         project_out = not (heads == 1 and dim_head == dim)
 
         self.heads = heads
-        self.dropout = dropout
 
         self.to_qkv = nn.Linear(dim, inner_dim * 3, bias=False)
 
@@ -60,8 +59,11 @@ class Attention(nn.Module):
         qkv = self.to_qkv(x).chunk(3, dim=-1)
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h=h), qkv)
 
-        # Flash Attention via PyTorch SDPA (fused kernel, no O(n²) attn matrix in VRAM)
-        out = F.scaled_dot_product_attention(q, k, v, dropout_p=self.dropout if self.training else 0.0)
+        # Flash Attention via PyTorch SDPA (fused kernel, no O(n²) attn matrix in VRAM).
+        # dropout_p=0.0 to match the original code, which applied no dropout on the
+        # attention weights (softmax was used directly). Output-projection dropout in
+        # to_out is preserved unchanged.
+        out = F.scaled_dot_product_attention(q, k, v, dropout_p=0.0)
         out = rearrange(out, 'b h n d -> b n (h d)')
         return self.to_out(out)
 
