@@ -135,12 +135,11 @@ def run(func_args):
 
     supports = [A]
     actor = RLActor(supports, func_args).to(func_args.device)
-    # Compile only the pure-torch submodules. RLActor.forward ends in __generator(),
-    # which uses NumPy + Python loops + in-place writes and would force a graph break
-    # (and tracing overhead) if the whole actor were compiled.
-    actor.asu = torch.compile(actor.asu)
-    if hasattr(actor, "msu"):
-        actor.msu = torch.compile(actor.msu)
+    # NOTE: torch.compile was tried here but removed. RLActor.forward ends in
+    # __generator() (NumPy + Python loops), which forces a graph break, so the speedup
+    # was marginal while the cold-start Inductor compile added a multi-minute stall at
+    # the first run of each variant -- undesirable for long unattended multi-run jobs.
+    # It is numerically neutral, so dropping it does not affect results.
     agent = RLAgent(env, actor, func_args)
 
     mini_batch_num = int(np.ceil(len(env.src.order_set) / func_args.batch_size))
