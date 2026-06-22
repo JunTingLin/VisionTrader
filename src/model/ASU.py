@@ -170,14 +170,12 @@ class SAGCN(nn.Module):
             x = nn.functional.pad(X, (self.receptive_field - in_len, 0, 0, 0))
         else:
             x = X
-        assert not torch.isnan(x).any()
-
         x = self.bn_start(self.start_conv(x))
         new_supports = None
         if self.gcn_bool and self.addaptiveadj and self.supports is not None:
             adp_matrix = torch.softmax(torch.relu(torch.mm(self.nodevec, self.nodevec.t())), dim=0)
             new_supports = self.supports + [adp_matrix]
-        
+
         if self.transformer_asu_bool:
             for i in range(self.layers):
                 residual = self.residual_convs[i](x)
@@ -254,13 +252,9 @@ class LiteTCN(nn.Module):
 
         for i in range(self.num_layers):
             residual = x
-            assert not torch.isnan(x).any()
             x = self.tcns[i](x)
-            assert not torch.isnan(x).any()
             x = x + residual[:, :, -x.shape[-1]:]
-
             x = self.bns[i](x)
-        assert not torch.isnan(x).any()
         x = self.end_conv(x)
 
         return torch.sigmoid(x.squeeze())
