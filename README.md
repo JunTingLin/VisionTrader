@@ -176,18 +176,38 @@ cd src/data/TWII/market_data && python deeptrader_market.py   # → market_data.
 
 ### 3. Configure Hyperparameters
 
-Edit [hyper.json](src/hyper.json) to set the train/val/test split indices, dataset path, and hyperparameters.
+Pre-built configs for all model variants are in [`src/hyper/`](src/hyper/):
+
+**TWII** (`feature34-Inter`, N=49, short-horizon 5:3:2, `fee=0.002`)
+
+| File | Architecture | `transformer_asu` | `transformer_msu` | `spatial_bool` |
+|------|-------------|:-----------------:|:-----------------:|:--------------:|
+| `twii_1_deeptrader.json` | DeepTrader (GCN + SA + LSTM) | `false` | `false` | `true` |
+| `twii_2_vit_sa_lstm.json` | ViT + SA + LSTM | `true` | `false` | `true` |
+| `twii_3_vit_lstm.json` | ViT + LSTM | `true` | `false` | `false` |
+| `twii_4_visiontrader.json` | **VisionTrader** (ViT & ViT) | `true` | `true` | `false` |
+
+**DJIA** (`feature34-Inter`, N=28, long-horizon 8:8:8, `fee=0.002`)
+
+| File | Architecture | `transformer_asu` | `transformer_msu` | `spatial_bool` |
+|------|-------------|:-----------------:|:-----------------:|:--------------:|
+| `djia_1_deeptrader.json` | DeepTrader (GCN + SA + LSTM) | `false` | `false` | `true` |
+| `djia_2_vit_sa_lstm.json` | ViT + SA + LSTM | `true` | `false` | `true` |
+| `djia_3_vit_lstm.json` | ViT + LSTM | `true` | `false` | `false` |
+| `djia_4_visiontrader.json` | **VisionTrader** (ViT & ViT) | `true` | `true` | `false` |
 
 Key parameters:
 
 | Parameter | Description |
 |-----------|-------------|
-| `transformer_asu_bool` | Enable Transformer for the Asset State Unit |
-| `transformer_msu_bool` | Enable Transformer for the Market State Unit |
+| `transformer_asu_bool` | Replace GCN with ViT in the Asset State Unit |
+| `transformer_msu_bool` | Replace LSTM with ViT in the Market State Unit |
+| `spatial_bool` | Enable spatial attention between assets (independent of ViT) |
+| `fee` | Transaction fee rate (e.g. `0.002` = 0.2%) — applied during training and validation |
 | `epochs` | Total training epochs |
 | `start_checkpoint_epoch` | Earliest epoch to start saving checkpoints (must be ≤ `epochs`) |
 | `market` | `"DJIA"` or `"TWII"` |
-| `data_prefix` | Path to the dataset folder, e.g. `"data/DJIA/feature34-Inter-P532"` |
+| `data_prefix` | Path to the dataset folder, e.g. `"data/TWII/feature34-Inter"` |
 | `seed` | Random seed; `-1` disables `setup_seed()` in `run.py` |
 
 Train/val/test split reference:
@@ -201,11 +221,14 @@ Train/val/test split reference:
 
 Each epoch runs multiple training batches via `agent.train_episode()`, followed by `agent.evaluation()` with the environment switched to validation mode via `env.set_eval()`.
 
+**Single run** (specify any config with `-c`):
+
 ```bash
-python run.py -c hyper.json
+cd src
+python run.py -c hyper/twii_4_visiontrader.json
 ```
 
-Outputs (logs, checkpoints, TensorBoard events, best `agent_wealth_val.npy`) are saved under `outputs/MMDD/HHMMSS/`.
+Outputs (logs, checkpoints, TensorBoard events, best `agent_wealth_val.npy`) are saved under `src/outputs/MMDD/HHMMSS/`.
 
 > The `outputs/` directory is not tracked by git — back up experiment results locally.
 
