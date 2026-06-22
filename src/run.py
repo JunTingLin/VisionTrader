@@ -118,6 +118,7 @@ def run(func_args):
         test_idx=test_idx,
         test_idx_end=test_idx_end,
         batch_size=func_args.batch_size,
+        fee=func_args.fee,
         window_len=func_args.window_len,
         trade_len=func_args.trade_len,
         max_steps=func_args.max_steps,
