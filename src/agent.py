@@ -124,8 +124,8 @@ class RLAgent():
             ror = torch.from_numpy(self.env.ror).to(self.args.device)
             # normed_ror = (ror - torch.mean(ror, dim=-1, keepdim=True)) / \
             #              torch.std(ror, dim=-1, keepdim=True)
-            normed_ror = (ror - torch.min(ror, dim=-1, keepdim=True).values) / \
-                         (torch.max(ror, dim=-1, keepdim=True).values - torch.min(ror, dim=-1, keepdim=True).values)
+            ror_min = torch.min(ror, dim=-1, keepdim=True).values
+            normed_ror = (ror - ror_min) / (torch.max(ror, dim=-1, keepdim=True).values - ror_min)
 
             next_states, rewards, rho_labels, masks, done, info = \
                 self.env.step(weights, rho.detach().cpu().numpy())
@@ -164,8 +164,7 @@ class RLAgent():
                     loss = - (gradient_asu)
                 loss = loss.mean()
                 assert not torch.isnan(loss)
-                self.optimizer.zero_grad()
-                loss = loss.contiguous()
+                self.optimizer.zero_grad(set_to_none=True)
                 loss.backward()
                 grad_norm, grad_norm_clip = self.clip_grad_norms(self.optimizer.param_groups, self.args.max_grad_norm)
                 self.optimizer.step()
@@ -186,25 +185,25 @@ class RLAgent():
         batch_size = states[0].shape[0]
 
         agent_wealth = np.ones((batch_size, 1), dtype=np.float32)
-        rho_record = []
-        while True:
-            steps += 1
-            x_a = torch.from_numpy(states[0]).to(self.args.device)
-            masks = torch.from_numpy(masks).to(self.args.device)
-            if self.args.msu_bool:
-                x_m = torch.from_numpy(states[1]).to(self.args.device)
-            else:
-                x_m = None
+        with torch.inference_mode():
+            while True:
+                steps += 1
+                x_a = torch.from_numpy(states[0]).to(self.args.device)
+                masks = torch.from_numpy(masks).to(self.args.device)
+                if self.args.msu_bool:
+                    x_m = torch.from_numpy(states[1]).to(self.args.device)
+                else:
+                    x_m = None
 
-            weights, rho, _, _ \
-                = self.actor(x_a, x_m, masks, deterministic=True)
-            next_states, rewards, _, masks, done, info = self.env.step(weights, rho.detach().cpu().numpy())
+                weights, rho, _, _ \
+                    = self.actor(x_a, x_m, masks, deterministic=True)
+                next_states, rewards, _, masks, done, info = self.env.step(weights, rho.cpu().numpy())
 
-            agent_wealth = np.concatenate((agent_wealth, info['total_value'][..., None]), axis=-1)
-            states = next_states
+                agent_wealth = np.concatenate((agent_wealth, info['total_value'][..., None]), axis=-1)
+                states = next_states
 
-            if done:
-                break
+                if done:
+                    break
 
         return agent_wealth
     
@@ -218,25 +217,26 @@ class RLAgent():
 
         agent_wealth = np.ones((batch_size, 1), dtype=np.float32)
         rho_record = []
-        while True:
-            steps += 1
-            x_a = torch.from_numpy(states[0]).to(self.args.device)
-            masks = torch.from_numpy(masks).to(self.args.device)
-            if self.args.msu_bool:
-                x_m = torch.from_numpy(states[1]).to(self.args.device)
-            else:
-                x_m = None
+        with torch.inference_mode():
+            while True:
+                steps += 1
+                x_a = torch.from_numpy(states[0]).to(self.args.device)
+                masks = torch.from_numpy(masks).to(self.args.device)
+                if self.args.msu_bool:
+                    x_m = torch.from_numpy(states[1]).to(self.args.device)
+                else:
+                    x_m = None
 
-            weights, rho, _, _ \
-                = self.actor(x_a, x_m, masks, deterministic=True)
-            rho_record.append(np.mean(rho.detach().cpu().numpy())) 
-            next_states, rewards, _, masks, done, info = self.env.step(weights, rho.detach().cpu().numpy())
+                weights, rho, _, _ \
+                    = self.actor(x_a, x_m, masks, deterministic=True)
+                rho_record.append(np.mean(rho.cpu().numpy()))
+                next_states, rewards, _, masks, done, info = self.env.step(weights, rho.cpu().numpy())
 
-            agent_wealth = np.concatenate((agent_wealth, info['total_value'][..., None]), axis=-1)
-            states = next_states
+                agent_wealth = np.concatenate((agent_wealth, info['total_value'][..., None]), axis=-1)
+                states = next_states
 
-            if done:
-                break
+                if done:
+                    break
 
         return agent_wealth, rho_record
 
