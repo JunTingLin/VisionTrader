@@ -14,6 +14,8 @@ from utils.functions import *
 from agent import *
 from environment.portfolio_env import PortfolioEnv
 
+torch.backends.cudnn.benchmark = True
+
 
 def run(func_args):
     if func_args.seed != -1:
@@ -129,6 +131,7 @@ def run(func_args):
 
     supports = [A]
     actor = RLActor(supports, func_args).to(func_args.device)
+    actor = torch.compile(actor)
     agent = RLAgent(env, actor, func_args)
 
     mini_batch_num = int(np.ceil(len(env.src.order_set) / func_args.batch_size))
