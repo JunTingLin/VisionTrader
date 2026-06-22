@@ -14,12 +14,16 @@ from utils.functions import *
 from agent import *
 from environment.portfolio_env import PortfolioEnv
 
-torch.backends.cudnn.benchmark = True
-
 
 def run(func_args):
     if func_args.seed != -1:
+        # setup_seed() turns on cudnn.deterministic for reproducibility.
         setup_seed(func_args.seed)
+    else:
+        # cudnn.benchmark auto-picks the fastest conv algo for fixed input shapes.
+        # Only safe when we are NOT in deterministic (seeded) mode, since benchmark
+        # can pick non-deterministic kernels.
+        torch.backends.cudnn.benchmark = True
 
     data_prefix = func_args.data_prefix
     matrix_path = data_prefix + func_args.relation_file
@@ -131,7 +135,12 @@ def run(func_args):
 
     supports = [A]
     actor = RLActor(supports, func_args).to(func_args.device)
-    actor = torch.compile(actor)
+    # Compile only the pure-torch submodules. RLActor.forward ends in __generator(),
+    # which uses NumPy + Python loops + in-place writes and would force a graph break
+    # (and tracing overhead) if the whole actor were compiled.
+    actor.asu = torch.compile(actor.asu)
+    if hasattr(actor, "msu"):
+        actor.msu = torch.compile(actor.msu)
     agent = RLAgent(env, actor, func_args)
 
     mini_batch_num = int(np.ceil(len(env.src.order_set) / func_args.batch_size))
