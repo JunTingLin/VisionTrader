@@ -1,5 +1,5 @@
 import torch
-from torch import nn, einsum
+from torch import nn
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
@@ -46,9 +46,8 @@ class Attention(nn.Module):
         project_out = not (heads == 1 and dim_head == dim)
 
         self.heads = heads
-        self.scale = dim_head ** -0.5
+        self.dropout = dropout
 
-        self.attend = nn.Softmax(dim=-1)
         self.to_qkv = nn.Linear(dim, inner_dim * 3, bias=False)
 
         self.to_out = nn.Sequential(
@@ -61,11 +60,8 @@ class Attention(nn.Module):
         qkv = self.to_qkv(x).chunk(3, dim=-1)
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h=h), qkv)
 
-        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale
-
-        attn = self.attend(dots)
-
-        out = einsum('b h i j, b h j d -> b h i d', attn, v)
+        # Flash Attention via PyTorch SDPA (fused kernel, no O(n²) attn matrix in VRAM)
+        out = F.scaled_dot_product_attention(q, k, v, dropout_p=self.dropout if self.training else 0.0)
         out = rearrange(out, 'b h n d -> b n (h d)')
         return self.to_out(out)
 
