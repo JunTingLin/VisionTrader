@@ -149,14 +149,6 @@ class SAGCN(nn.Module):
             for i in range(layers):
                 self.sans.append(SpatialAttentionLayer(num_nodes, hidden_dim, receptive_field - a_s_records[i]))
                 receptive_field -= a_s_records[i]
-        '''
-        if self.transformer_asu_bool:
-            self.TE = nn.ModuleList()
-            self.TE.append(TE(image_size=(27,15),dim=128, depth=2, heads=4, mlp_dim=32, channels=128, dim_head=4, dropout=0.1, emb_dropout=0.1))
-            self.TE.append(TE(image_size=(27,13),dim=128, depth=2, heads=4, mlp_dim=32, channels=128, dim_head=4, dropout=0.1, emb_dropout=0.1))
-            self.TE.append(TE(image_size=(27,9),dim=128, depth=2, heads=4, mlp_dim=32, channels=128, dim_head=4, dropout=0.1, emb_dropout=0.1))
-            self.TE.append(TE(image_size=(27,1),dim=128, depth=2, heads=4, mlp_dim=32, channels=128, dim_head=4, dropout=0.1, emb_dropout=0.1))
-        '''
         if self.transformer_asu_bool:
             self.TE = nn.ModuleList()
             image_sizes = [(num_assets, 15), (num_assets, 13), (num_assets, 9), (num_assets, 1)]
