@@ -219,7 +219,7 @@
 
 ## 綜合比較表
 
-### US Market，Train/Val/Test = 8/8/8（2000-01-01 ~ 2024-12-31）
+### US Market，Train/Val/Test = 8/8/8（2000-01-01 ~ 2023-12-31）
 
 | Feature | 模型 | Val ASR | Val ARR | Val MDD | Test ASR | Test ARR | Test MDD |
 |---------|------|---------|---------|---------|----------|----------|----------|
@@ -229,7 +229,9 @@
 | Basic | DeepTrader (ViT & LSTM) | 1.31 | 0.2041 | 0.1465 | 1.03 | 0.1694 | 0.1955 |
 | Basic | VisionTrader (ViT & ViT) | 1.35 | 0.2077 | 0.1340 | 1.17 | 0.1871 | 0.1539 |
 | Extended | DeepTrader (GCN+SA & LSTM) | 0.44 | 0.0795 | 0.3610 | 0.95 | 0.1395 | 0.1769 |
-| Extended | VisionTrader (ViT & ViT) | — | — | — | 1.57 | — | — |
+| Extended | VisionTrader (ViT & ViT) | 1.24 | 0.2017 | 0.1354 | 1.58 | 0.2306 | 0.1766 |
+
+> Extended VisionTrader 一列先前僅填 Test ASR = 1.57（Morris 學長原始報告值），現已補齊為重算值。論文 Table 10 採用 1.58 / 23.1% / 17.7%，與本表一致；差異原因見上方 detail 章節註記（0719 四筆 test.npy 未保存，事後補跑 inference）。
 
 ### US Market，Train/Val/Test = 5/3/2（2015-01-01 ~ 2025-03-31）
 
