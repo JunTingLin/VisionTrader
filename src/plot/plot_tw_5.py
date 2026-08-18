@@ -13,6 +13,9 @@ from utils.functions import calculate_metrics # ../utils/functions.py
 # -------------------------------
 TRADE_MODE = "M"    # "M": Monthly mode (12 trading periods per year)
 TRADE_LEN = 21      # Sampling interval: 21 business days per sample
+
+# Periodic-return windows, in TRADE_LEN-day rebalancing cycles (not calendar buckets)
+PERIOD_CYCLES = {'ME': 1, 'QE': 3, '6ME': 6, 'YE': 12}
 START_DATE = "2015-01-01"
 END_DATE = "2025-03-31"
 WEALTH_MODE = 'inter' # 'inter' or 'intra' for TWII daily returns
@@ -325,12 +328,28 @@ def plot_yearly_results(df_val, df_test, val_days, test_days):
 # -------------------------------
 def calculate_periodic_returns_df(df, period):
     """
-    Resample the DataFrame using the specified period (e.g., 'ME', 'QE', '6ME', 'YE')
-    by taking the last value of each period, then compute period-over-period returns.
+    Non-overlapping periodic returns on the TRADE_LEN sampling grid.
+
+    df has one row per rebalancing step, so a period is a whole number of cycles
+    (PERIOD_CYCLES) rather than a calendar bucket -- calendar resampling drifts
+    against the grid and drops steps. Rows are labelled with the period-end date;
+    a trailing incomplete period is discarded.
     """
-    resampled = df.resample(period).last()
-    returns = resampled.pct_change().dropna()
-    return returns
+    cycles = PERIOD_CYCLES.get(period)
+    if cycles is None:
+        raise ValueError(f"Unsupported period: {period}. Use one of {sorted(PERIOD_CYCLES)}")
+
+    rows, dates = [], []
+    start_idx = 0
+    while start_idx + cycles < len(df):
+        end_idx = start_idx + cycles
+        rows.append(df.iloc[end_idx] / df.iloc[start_idx] - 1.0)
+        dates.append(df.index[end_idx])
+        start_idx = end_idx
+
+    if not rows:
+        return pd.DataFrame(columns=df.columns)
+    return pd.DataFrame(rows, index=pd.DatetimeIndex(dates))
 
 def calculate_win_rate_df(returns_df, benchmark_column='0050.TW'):
     """
@@ -389,9 +408,9 @@ def main():
         returns_val = calculate_periodic_returns_df(df_val, period)
         win_rate_val = calculate_win_rate_df(returns_val, benchmark_column='0050.TW')
         print(f"\nValidation Period: {period}")
-        if period == 'YE':
+        if period in ('ME', 'YE'):
             print("Returns:")
-            print(returns_val)
+            print(returns_val.to_string())
         print("Win Rates:")
         print(win_rate_val)
     
@@ -401,9 +420,9 @@ def main():
         returns_test = calculate_periodic_returns_df(df_test, period)
         win_rate_test = calculate_win_rate_df(returns_test, benchmark_column='0050.TW')
         print(f"\nTesting Period: {period}")
-        if period == 'YE':
+        if period in ('ME', 'YE'):
             print("Returns:")
-            print(returns_test)
+            print(returns_test.to_string())
         print("Win Rates:")
         print(win_rate_test)
     

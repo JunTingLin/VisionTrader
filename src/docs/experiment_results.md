@@ -7,7 +7,8 @@
   - 5/3/2 split：2015-01-01 ~ 2025-03-31，train[0:1304] / val[1304:2087] / test[2087:2673]（val: 2020-01-01~2022-12-30，test: 2023-01-02~2025-03-31）
 - **台灣市場 ASR**：使用 `plot/plot_tw_5.py` 的計算方式（TRADE_MODE="M", 0050.TW `0050.TW.csv`）
   - 5/3/2 split：2015-01-01 ~ 2025-03-31，train[0:1304] / val[1304:2087] / test[2087:2673]
-- 每個實驗來源：`src/outputs/`（從 Google Drive 及 `/mnt/d/Code/PythonProjects/DeepTrader/src/outputs_7` 匯入）
+- 每個實驗來源：`src/outputs/`（從 Google Drive 及 `/mnt/d/Code/PythonProjects/DeepTrader/src/outputs_7` 匯入）；
+  Morris 學長提供的 US Extended 8/8/8 VisionTrader 位於 `src/outputs_morris/`
 - ASR = ARR / AVOL（年化夏普比率）；表格欄位 val/test 分別對應驗證期與測試期
 
 ---
